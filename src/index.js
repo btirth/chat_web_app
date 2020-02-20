@@ -14,8 +14,28 @@ const port = process.PORT || 3000
 
 app.use(express.static(publicDirectoryPath))
 
+
+// server (emit) -> client (receive) - countUpdated
+// client (emit) -> server (receive) - increment
+// var count = 0
+// io.on('connection', (socket) => {
+//     console.log('New Connection')
+
+//     socket.emit('countUpdated', count)
+
+//     socket.on('increment', () => {
+//         count++
+//         socket.emit('countUpdated', count)
+//     })
+// })
+
+
 io.on('connection', (socket) => {
-    console.log('New Connection')
+    socket.emit('message', 'Welcome!')
+
+    socket.on('sendMsg', (msg) => {
+        io.emit('message', msg)
+    })
 })
 
 server.listen(port, () => {
