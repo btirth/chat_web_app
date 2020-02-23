@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="chat">
-        <div class="chat__sidebar">
+        <div id="sidebar" class="chat__sidebar">
 
         </div>
 
@@ -19,7 +19,7 @@
             <br>
             <div class="compose">
                 <form id="form">
-                    <input type="text" id="msg" placeholder="Message">
+                    <input type="text" id="msg" placeholder="Message" required>
                     <button id="msgBtn">Send</button>
                 </form>
                 <button id="sendLocation" type="button">Send Location</button>
@@ -38,7 +38,7 @@
     <script id="msgTemplate" type="HTML">
         <div class="message">
             <p>
-                <spna class="message__name">User</span>
+                <spna class="message__name">{{username}}</span>
                 <spna class="message__meta">{{createdAt}}</span>
             </p>
             <p>{{newMessage}}</p>
@@ -48,11 +48,21 @@
     <script id="locationTemplate" type="HTML">
         <div class="message">
             <p>
-                <spna class="message__name">User</span>
+                <spna class="message__name">{{username}}</span>
                 <spna class="message__meta">{{createdAt}}</span>
             </p>
             <P><a href="{{location}}" target="_blank">My current location</a></P>
         </div>
+    </script>
+
+    <script id="sidebar-template" type="text/HTML">
+        <h2 class="room-title">{{room}}</h2>
+        <h3 class="list-title">Users</h3>
+        <ul class="users">
+            {{#users}}
+                <li>{{username}}</li>
+            {{/users}}
+        </ul>
     </script>
 
 

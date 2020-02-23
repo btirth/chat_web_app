@@ -10,11 +10,33 @@ const $messages = document.querySelector('#messages')
 //Templates
 const msgTemplate = document.querySelector('#msgTemplate').innerHTML
 const locationTemplate = document.querySelector('#locationTemplate').innerHTML
+const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML
 
 //Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
 
+const autoscroll = () => {
+    //New message element
+    const $newMessage = $messages.lastElementChild
 
+    //Height of the new message
+    const newMessageStyles = getComputedStyle($newMessage)
+    const newMessageMargin = parseInt(newMessageStyles.marginBottom)
+    const newMessageHeight = $newMessage.offsetHeight + newMessageMargin
+
+    //visible height
+    const visibleHeight = $messages.offsetHeight
+
+    //height of messages container
+    const containerHeight = $messages.scrollHeight
+    
+    //how far have I scrolled
+    const scrollOffset = $messages.scrollTop + visibleHeight
+
+    if(containerHeight - newMessageHeight <= scrollOffset){
+        $messages.scrollTop = $messages.scrollHeight + newMessageHeight
+    }
+}
 
 // socket.on('countUpdated', (count) => {
 //     console.log(`The count is incremented ${count}`)
@@ -27,21 +49,39 @@ const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true }
 socket.on('message', (msg) => {
     console.log(msg)
     const newMessage = Mustache.render(msgTemplate, {
+        username: msg.username,
         newMessage: msg.text,
         createdAt: moment(msg.createdAt).format('mm:hha')
     })
     $messages.insertAdjacentHTML('beforeend', newMessage)
+    autoscroll()
 })
 
 
 socket.on('locationMsg', (location) => {
     console.log(location)
     const latestLocation = Mustache.render(locationTemplate, {
-        location: location,
+        username: location.username,
+        location: location.text,
         createdAt: moment(location.createdAt).format('mm:hha')
     })
     $messages.insertAdjacentHTML('beforeend', latestLocation)
+    autoscroll()
 })
+
+
+socket.on('roomData', ({ room, users }) => {
+    const html = Mustache.render(sidebarTemplate, {
+        room,
+        users
+    })
+
+    document.querySelector('#sidebar').innerHTML = html
+
+    console.log(room)
+    console.log(users)
+})
+
 
 document.querySelector('#msgBtn').addEventListener('click', (e) => {
     e.preventDefault()
@@ -87,4 +127,12 @@ document.querySelector('#sendLocation').addEventListener('click', () => {
         })
     
     })
+})
+
+
+socket.emit('join', { username, room }, (error) => {
+    if(error){
+        alert(error)
+        location.href = '/'
+    }    
 })
